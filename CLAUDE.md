@@ -152,14 +152,25 @@ versioning scheme this tarball's version corresponds to.
 - `App.tsx` — top-level `View` state machine (`home` | `creator`), IndexedDB
   list/save/delete, and file download/upload for export/import.
 
-## The Foundry Bridge (currently missing)
+## The Foundry Bridge
 
-- Director can export an Actor to a `.aetherchrome.json` file; nothing in
-  Aetherchrome-foundry reads that format back in yet. If asked to build the
-  import side, treat `ActorExportFile`/`ACTOR_EXPORT_SCHEMA_VERSION` in
-  `src/storage/export.ts` as the contract to match, and version-gate it the
-  same way this side does — don't let Foundry silently accept an
-  unrecognized/future schema version.
+- Director exports an Actor to a `.aetherchrome.json` file, and as of
+  2026-08-12 Aetherchrome-foundry has a working import side: the entry point
+  is `scripts/apps/director-import-dialog.mjs`, backed by
+  `scripts/import/director-import.mjs` (`parseDirectorExport()`,
+  `buildImportPayload()`, a `SUPPORTED_SCHEMA_VERSION` constant checked
+  against the export's `schemaVersion` — an unrecognized/future version is
+  rejected, not silently accepted) plus per-registry field mapping in
+  `scripts/import/item-mapper.mjs` and `scripts/import/trait-mapper.mjs`.
+  Real test coverage exists under `scripts/import/__fixtures__/`, including
+  a `bad-schema-version.aetherchrome.json` fixture for the rejection path
+  and a `real-director-export.aetherchrome.json` fixture from an actual
+  Director export.
+- The contract on this side is still `ActorExportFile`/
+  `ACTOR_EXPORT_SCHEMA_VERSION` in `src/storage/export.ts` — bumping it is a
+  breaking change for Foundry's importer (`SUPPORTED_SCHEMA_VERSION` there
+  would need a matching update), so treat the two as versioned in lockstep,
+  not independently.
 
 ## Deployment
 
