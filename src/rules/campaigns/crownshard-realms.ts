@@ -19,15 +19,19 @@ const modeledTraitIds = new Set(TRAIT_REGISTRY.map(trait => trait.id));
  * attributeMin/Max, pressureCap, and valueBias are NOT yet structured Core
  * registry fields — they only exist in prose ("AEC — Crownshard Realms
  * Campaign.md") — so they stay hand-set here, sourced from that document
- * (v0.1 r12), same as before this file was rebuilt.
+ * (v0.0.3-r1, 2026-08-12: re-synced to DR-0007's 3d10-under-Target mechanic
+ * — baseline 4/range 3-6 became baseline 14/range 14-16, the system Granted
+ * Baseline through the Trained benchmark tier. Starting Actors may not
+ * reduce an Attribute below 14 here, so attributeMin equals attributeBaseline
+ * and Step Down is a no-op for this campaign).
  */
 export const CROWNSHARD_REALMS_CAMPAIGN: CampaignProfile = {
   id: core.id,
   name: core.name,
   startingPoints: 50,
-  attributeBaseline: 4,
-  attributeMin: 3,
-  attributeMax: 6,
+  attributeBaseline: 14,
+  attributeMin: 14,
+  attributeMax: 16,
   startingSkillMax: core.starting_skill_maximum,
   disadvantageRefundCap: core.disadvantage_refund_limit,
   pressureCap: 4,

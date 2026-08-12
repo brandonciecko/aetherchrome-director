@@ -18,7 +18,7 @@ describe("evaluateDraftActor", () => {
 
   it("flags an attribute outside the campaign's starting range", () => {
     const draft = blankActor();
-    draft.attributes.strength = 7; // Crownshard Realms range is 3-6
+    draft.attributes.strength = 17; // Crownshard Realms range is 14-16
     const result = evaluateDraftActor(draft, CROWNSHARD_REALMS_CAMPAIGN);
     expect(result.issues.some(issue => issue.includes("strength"))).toBe(true);
   });
@@ -54,7 +54,7 @@ describe("evaluateDraftActor", () => {
 
   it("flags going over budget", () => {
     const draft = blankActor();
-    for (const key of ATTRIBUTE_KEYS) draft.attributes[key] = 6; // 36 points
+    for (const key of ATTRIBUTE_KEYS) draft.attributes[key] = 16; // 36 points (6 per attribute, baseline 14 to campaign max 16)
     draft.skills["SKL-FIGHT"] = 6; // +21 points = 57 total, over the 50-point budget
     const result = evaluateDraftActor(draft, CROWNSHARD_REALMS_CAMPAIGN);
     expect(result.pointLedger.pointsRemaining).toBeLessThan(0);
@@ -81,18 +81,18 @@ describe("evaluateDraftActor", () => {
 
   it("computes Max HP from Base Health plus Extra HP ranks, and Max MP from Base Essence", () => {
     const draft = blankActor();
-    draft.attributes.health = 5;
-    draft.attributes.essence = 6;
-    draft.traits["TRT-ADV-EXTRA-HP"] = 2; // Extra HP rank 2, <= Base Health 5, legal
+    draft.attributes.health = 15;
+    draft.attributes.essence = 16;
+    draft.traits["TRT-ADV-EXTRA-HP"] = 2; // Extra HP rank 2, <= Base Health 15, legal
     const result = evaluateDraftActor(draft, CROWNSHARD_REALMS_CAMPAIGN);
-    expect(result.derivedStats.maxHP).toBe(12); // 2*5 + 2
-    expect(result.derivedStats.maxMP).toBe(6);
+    expect(result.derivedStats.maxHP).toBe(32); // 2*15 + 2
+    expect(result.derivedStats.maxMP).toBe(16);
   });
 
   it("flags Extra HP ranks that exceed Base Health", () => {
     const draft = blankActor();
-    draft.attributes.health = 4;
-    draft.traits["TRT-ADV-EXTRA-HP"] = 5; // exceeds Base Health 4
+    draft.attributes.health = 14;
+    draft.traits["TRT-ADV-EXTRA-HP"] = 15; // exceeds Base Health 14
     const result = evaluateDraftActor(draft, CROWNSHARD_REALMS_CAMPAIGN);
     expect(result.issues.some(issue => issue.includes("Extra HP"))).toBe(true);
   });

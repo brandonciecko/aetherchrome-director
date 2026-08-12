@@ -33,6 +33,14 @@ export interface TraitDefinition {
  * Crownshard Realms availability list (05 Campaigns/data/crownshard-realms/
  * availability/traits.yaml) is broader than this 16-entry catalog (27
  * entries) — the extra ones aren't modeled here yet either.
+ *
+ * TRT-ADV-EXTRA-HP.maxRank updated 2026-08-12 (DR-0007): it stood in for
+ * Core's dynamic "Base Health" reference using the old standard Attribute
+ * scale's ceiling (9) — coincidentally exact under the retired 1-9 scale,
+ * but Base Health can now reach 30, so the static field is raised to match.
+ * creation.ts's explicit `rank > baseHealth` check remains the real,
+ * per-Actor enforcement of "ranks cannot exceed Base Health"; this field is
+ * only a fallback upper bound.
  */
 export const TRAIT_REGISTRY: TraitDefinition[] = [
   {
@@ -42,7 +50,7 @@ export const TRAIT_REGISTRY: TraitDefinition[] = [
     costPerRank: 2,
     ranked: true,
     minRank: 1,
-    maxRank: 9,
+    maxRank: 30,
     limitNote: "ranks cannot exceed Base Health",
     effectSummary: "+1 Max HP per rank (does not change Current HP)."
   },

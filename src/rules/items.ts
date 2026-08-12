@@ -6,7 +6,7 @@ export interface ItemDefinition {
   id: string;
   name: string;
   category: ItemCategory;
-  /** Item Rating (Armor/weapon damage-pool/shield-block contribution). */
+  /** Item Rating (Armor/weapon damage/shield-block contribution). */
   itemRating: number;
   /** Load in the ruleset's 0.25 increments. */
   load: number;

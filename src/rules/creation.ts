@@ -1,4 +1,4 @@
-import { ATTRIBUTE_KEYS, attributeCumulativeCost } from "./attributes";
+import { ATTRIBUTE_KEYS, ATTRIBUTE_STEP_DOWN_FLOOR, attributeCumulativeCost } from "./attributes";
 import { SKILL_REGISTRY, skillCumulativeCost, validateSkillHierarchy } from "./skills";
 import { getTrait } from "./traits";
 import { getItem } from "./items";
@@ -43,10 +43,13 @@ export function evaluateDraftActor(draft: DraftActor, campaign: CampaignProfile)
   let attributePointsSpent = 0;
   for (const key of ATTRIBUTE_KEYS) {
     const rating = draft.attributes[key] ?? campaign.attributeBaseline;
-    if (rating < campaign.attributeBaseline) {
-      issues.push(`${key}: reducing below the campaign baseline (${campaign.attributeBaseline}) isn't costed by the ruleset yet`);
-    } else {
+    // A rating below the ruleset's hard Step Down floor isn't costed at all (attributeCumulativeCost
+    // throws there) — this shouldn't happen via the UI (which clamps to campaign.attributeMin), but a
+    // stale/imported draft could carry one, so treat it as illegal and skip cost rather than crash.
+    if (Number.isInteger(rating) && rating >= ATTRIBUTE_STEP_DOWN_FLOOR) {
       attributePointsSpent += attributeCumulativeCost(campaign.attributeBaseline, rating);
+    } else {
+      issues.push(`${key}: ${rating} is below the ruleset's Step Down floor (${ATTRIBUTE_STEP_DOWN_FLOOR}) and isn't costed`);
     }
     if (rating < campaign.attributeMin || rating > campaign.attributeMax) {
       issues.push(`${key}: ${rating} is outside the campaign's starting range (${campaign.attributeMin}-${campaign.attributeMax})`);

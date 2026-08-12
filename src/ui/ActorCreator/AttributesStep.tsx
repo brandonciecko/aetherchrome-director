@@ -4,6 +4,7 @@ import {
   ATTRIBUTE_DESCRIPTIONS,
   ATTRIBUTE_KEYS,
   ATTRIBUTE_LABELS,
+  ATTRIBUTE_STEP_DOWN_FLOOR,
   attributeCumulativeCost,
   type AttributeKey
 } from "../../rules/attributes";
@@ -54,7 +55,9 @@ export function AttributesStep({
           {ATTRIBUTE_KEYS.map(key => {
             const rating = draft.attributes[key] ?? campaign.attributeBaseline;
             const cost =
-              rating >= campaign.attributeBaseline ? attributeCumulativeCost(campaign.attributeBaseline, rating) : 0;
+              Number.isInteger(rating) && rating >= ATTRIBUTE_STEP_DOWN_FLOOR
+                ? attributeCumulativeCost(campaign.attributeBaseline, rating)
+                : 0;
 
             return (
               <div
