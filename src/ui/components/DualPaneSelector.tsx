@@ -92,7 +92,11 @@ export function DualPaneSelector<T>({
             );
           })}
         </ul>
-        {selectedItem && <div className="dual-pane-details">{renderDetails(selectedItem)}</div>}
+      </div>
+
+      <div className="pane details-pane">
+        <h3>Details</h3>
+        {selectedItem ? renderDetails(selectedItem) : <p className="empty-hint">Select a card to see details.</p>}
       </div>
     </div>
   );
