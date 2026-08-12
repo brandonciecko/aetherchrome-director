@@ -10,8 +10,8 @@ content is derived from it, not an independent design surface) and
 see "The Foundry Bridge" below for the current gap).
 
 Director depends on Core's generated registry data via the `aetherchrome-core-data`
-package, vendored as a single tarball at `vendor/aetherchrome-core-data-0.2.1.tgz`
-(`package.json`: `"aetherchrome-core-data": "file:./vendor/aetherchrome-core-data-0.2.1.tgz"`).
+package, vendored as a single tarball at `vendor/aetherchrome-core-data-0.2.5.tgz`
+(`package.json`: `"aetherchrome-core-data": "file:./vendor/aetherchrome-core-data-0.2.5.tgz"`).
 That tarball is produced in Core with `npm run pack-data` (a thin `npm pack`
 wrapper — Core's own `package.json` already restricts `files` to
 `generated/json`, `generated/csv`, and `schemas`) and copied into this repo's
@@ -176,6 +176,14 @@ versioning scheme this tarball's version corresponds to.
   committed rather than referenced via a sibling `file:` path.
 - `npm run deploy` (`wrangler deploy`) deploys manually if needed; normal
   deploys happen through the Cloudflare-side build trigger, not this script.
+- **Build/version identity is visible in the running app** (`src/version.ts`,
+  rendered by `VersionFooter` on both the home screen and the Actor Creator
+  sidebar): `APP_VERSION` is `package.json`'s `version` field — bump it by
+  hand for a notable release — and `BUILD_COMMIT`/`BUILD_DATE` are generated
+  automatically at build time in `vite.config.ts` from the current git
+  commit, so the on-page label always changes on a new deploy even if
+  `version` wasn't bumped. This exists so it's possible to tell from the
+  live site alone whether a given change has actually shipped.
 
 ## Working Conventions
 

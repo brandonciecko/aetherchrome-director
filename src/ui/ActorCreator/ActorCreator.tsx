@@ -4,6 +4,7 @@ import { evaluateDraftActor } from "../../rules/creation";
 import type { DraftActor } from "../../rules/types";
 import { indexedDbActorStore } from "../../storage/actor-store";
 import { PointLedger } from "../components/PointLedger";
+import { VersionFooter } from "../components/VersionFooter";
 import { ConceptStep } from "./ConceptStep";
 import { AttributesStep } from "./AttributesStep";
 import { SkillsStep } from "./SkillsStep";
@@ -45,6 +46,7 @@ export function ActorCreator({ actor, onDone }: { actor: DraftActor; onDone: () 
           &larr; Back to Actors
         </button>
         <PointLedger campaign={campaign} result={result} />
+        <VersionFooter />
       </aside>
 
       <main className="creator-main">

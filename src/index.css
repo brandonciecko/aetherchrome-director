@@ -24,3 +24,10 @@ input,
 textarea {
   font-family: inherit;
 }
+
+.version-footer {
+  color: #5b6272;
+  font-size: 0.75rem;
+  font-family: ui-monospace, "SFMono-Regular", monospace;
+  margin: 0;
+}

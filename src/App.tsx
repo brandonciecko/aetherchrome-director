@@ -5,6 +5,7 @@ import { createBlankDraftActor, type DraftActor } from "./rules/types";
 import { indexedDbActorStore } from "./storage/actor-store";
 import { ActorImportError, exportActorToJSON, importActorFromJSON } from "./storage/export";
 import { ActorCreator } from "./ui/ActorCreator/ActorCreator";
+import { VersionFooter } from "./ui/components/VersionFooter";
 import "./App.css";
 
 type View = { screen: "home" } | { screen: "creator"; actor: DraftActor };
@@ -126,6 +127,8 @@ export default function App() {
           ))}
         </ul>
       )}
+
+      <VersionFooter />
     </div>
   );
 }
