@@ -12,7 +12,7 @@
     "deploy": "wrangler deploy"
   },
   "dependencies": {
-    "aetherchrome-core-data": "file:./vendor/aetherchrome-core-data-0.1.0.tgz",
+    "aetherchrome-core-data": "file:./vendor/aetherchrome-core-data-0.2.0.tgz",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },

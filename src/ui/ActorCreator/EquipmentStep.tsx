@@ -71,6 +71,7 @@ export function EquipmentStep({
     return (
       <div className="item-details">
         <h4>{item.name}</h4>
+        <p>{item.description}</p>
         <p className="detail-cost">{item.baseValueVU} VU</p>
         <p>Category: {item.category}</p>
         <p>Item Rating: {item.itemRating}</p>

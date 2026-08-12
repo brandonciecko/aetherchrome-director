@@ -12,6 +12,8 @@ export interface ItemDefinition {
   load: number;
   /** Base Value in Value Units (VU) — Standard Price = Base Value x campaign Value Bias. */
   baseValueVU: number;
+  /** Public/production-facing description of the Item (Core's `description` field). */
+  description: string;
   notes?: string;
 }
 
@@ -75,6 +77,7 @@ function toItemDefinition(entry: { id: string; notes?: string }): ItemDefinition
     // unit here, same as this list's prior hand-typed values.
     load: typeof rawLoad === "number" ? rawLoad : 0,
     baseValueVU: core.profiles.economic.base_value_vu,
+    description: core.description,
     notes: entry.notes
   };
 }

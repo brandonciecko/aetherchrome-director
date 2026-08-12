@@ -11,6 +11,7 @@
  */
 import skillsFile from "aetherchrome-core-data/generated/json/skills.json";
 import itemsFile from "aetherchrome-core-data/generated/json/items.json";
+import attributesFile from "aetherchrome-core-data/generated/json/attributes.json";
 import campaignsFile from "aetherchrome-core-data/generated/json/campaigns.json";
 import campaignAvailabilityFile from "aetherchrome-core-data/generated/json/campaign_availability.json";
 
@@ -19,6 +20,8 @@ export interface CoreSkillRecord {
   name: string;
   record_kind: "skill" | "specialization" | "technique";
   parent_skill_id?: string;
+  /** Public/production-facing description of what the Skill covers. */
+  concept: string;
 }
 
 export interface CoreItemRecord {
@@ -26,10 +29,22 @@ export interface CoreItemRecord {
   name: string;
   category: string;
   item_rating: number;
+  /** Public/production-facing description of the Item. */
+  description: string;
   profiles: {
     physical: { load: number | string };
     economic: { base_value_vu: number };
   };
+}
+
+export interface CoreAttributeRecord {
+  id: string;
+  name: string;
+  abbreviation: string;
+  standard_minimum: number;
+  standard_maximum: number;
+  /** Public/production-facing description of what the Attribute governs. */
+  description: string;
 }
 
 export interface CoreCampaignRecord {
@@ -53,6 +68,7 @@ export interface CoreCampaignAvailabilityRecord {
 
 export const CORE_SKILLS = skillsFile.records as unknown as CoreSkillRecord[];
 export const CORE_ITEMS = itemsFile.records as unknown as CoreItemRecord[];
+export const CORE_ATTRIBUTES = attributesFile.records as unknown as CoreAttributeRecord[];
 export const CORE_CAMPAIGNS = campaignsFile.records as unknown as CoreCampaignRecord[];
 export const CORE_CAMPAIGN_AVAILABILITY = campaignAvailabilityFile.records as unknown as CoreCampaignAvailabilityRecord[];
 
@@ -75,4 +91,10 @@ export function getCoreItem(itemId: string): CoreItemRecord {
   const item = CORE_ITEMS.find(i => i.id === itemId);
   if (!item) throw new Error(`Unknown Core item id "${itemId}"`);
   return item;
+}
+
+export function getCoreAttribute(attributeId: string): CoreAttributeRecord {
+  const attribute = CORE_ATTRIBUTES.find(a => a.id === attributeId);
+  if (!attribute) throw new Error(`Unknown Core attribute id "${attributeId}"`);
+  return attribute;
 }

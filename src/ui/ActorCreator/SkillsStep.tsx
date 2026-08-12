@@ -89,6 +89,7 @@ export function SkillsStep({
     return (
       <div className="item-details">
         <h4>{selectedSkill.name}</h4>
+        <p>{selectedSkill.description}</p>
         <p>Parent: {parent ? parent.name : "None (root Skill)"}</p>
         <p>
           Rating: {rating} / {max}
@@ -103,8 +104,8 @@ export function SkillsStep({
     <div className="step skills-step">
       <h2>Skills</h2>
       <p>Starting Skill max {campaign.startingSkillMax}. A Skill can never exceed its parent's rating.</p>
-      <div className="skills-layout">
-        <div className="skills-list">{roots.map(root => renderSkillRow(root.id, 0))}</div>
+      <div className="step-layout">
+        <div className="step-list">{roots.map(root => renderSkillRow(root.id, 0))}</div>
         <div className="pane details-pane">
           <h3>Details</h3>
           {renderDetails()}

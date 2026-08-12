@@ -102,14 +102,14 @@
   gap: 0.5rem;
 }
 
-.skills-layout {
+.step-layout {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
   gap: 1rem;
   align-items: start;
 }
 
-.skills-list {
+.step-list {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -120,18 +120,17 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-}
-
-.skill-row {
   cursor: pointer;
   border-radius: 6px;
   padding: 0.15rem 0.4rem;
 }
 
+.attribute-row:hover,
 .skill-row:hover {
   background: #1a1d23;
 }
 
+.attribute-row.selected,
 .skill-row.selected {
   background: #1a1d23;
   outline: 1px solid #7dd3fc;

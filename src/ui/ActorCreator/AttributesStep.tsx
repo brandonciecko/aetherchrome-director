@@ -1,4 +1,12 @@
-import { ATTRIBUTE_ABBREVIATIONS, ATTRIBUTE_KEYS, ATTRIBUTE_LABELS, attributeCumulativeCost } from "../../rules/attributes";
+import { useState } from "react";
+import {
+  ATTRIBUTE_ABBREVIATIONS,
+  ATTRIBUTE_DESCRIPTIONS,
+  ATTRIBUTE_KEYS,
+  ATTRIBUTE_LABELS,
+  attributeCumulativeCost,
+  type AttributeKey
+} from "../../rules/attributes";
 import type { CampaignProfile } from "../../rules/campaigns";
 import type { DraftActor } from "../../rules/types";
 import type { DraftUpdater } from "./types";
@@ -12,8 +20,26 @@ export function AttributesStep({
   onChange: DraftUpdater;
   campaign: CampaignProfile;
 }) {
-  function setAttribute(key: (typeof ATTRIBUTE_KEYS)[number], rating: number) {
+  const [selectedKey, setSelectedKey] = useState<AttributeKey | null>(null);
+
+  function setAttribute(key: AttributeKey, rating: number) {
     onChange(d => ({ ...d, attributes: { ...d.attributes, [key]: rating } }));
+  }
+
+  function renderDetails() {
+    if (!selectedKey) {
+      return <p className="empty-hint">Select an Attribute to see details.</p>;
+    }
+    const rating = draft.attributes[selectedKey] ?? campaign.attributeBaseline;
+    return (
+      <div className="item-details">
+        <h4>{ATTRIBUTE_LABELS[selectedKey]}</h4>
+        <p>{ATTRIBUTE_DESCRIPTIONS[selectedKey]}</p>
+        <p>
+          Rating: {rating} (starting range {campaign.attributeMin}-{campaign.attributeMax})
+        </p>
+      </div>
+    );
   }
 
   return (
@@ -23,28 +49,44 @@ export function AttributesStep({
         Starting range {campaign.attributeMin}-{campaign.attributeMax}, baseline {campaign.attributeBaseline}.
       </p>
 
-      <div className="attribute-grid">
-        {ATTRIBUTE_KEYS.map(key => {
-          const rating = draft.attributes[key] ?? campaign.attributeBaseline;
-          const cost =
-            rating >= campaign.attributeBaseline ? attributeCumulativeCost(campaign.attributeBaseline, rating) : 0;
+      <div className="step-layout">
+        <div className="attribute-grid">
+          {ATTRIBUTE_KEYS.map(key => {
+            const rating = draft.attributes[key] ?? campaign.attributeBaseline;
+            const cost =
+              rating >= campaign.attributeBaseline ? attributeCumulativeCost(campaign.attributeBaseline, rating) : 0;
 
-          return (
-            <div key={key} className="attribute-row">
-              <span className="attribute-name" title={ATTRIBUTE_LABELS[key]}>
-                {ATTRIBUTE_ABBREVIATIONS[key]}
-              </span>
-              <button disabled={rating <= campaign.attributeMin} onClick={() => setAttribute(key, rating - 1)}>
-                -
-              </button>
-              <span className="rating-value">{rating}</span>
-              <button disabled={rating >= campaign.attributeMax} onClick={() => setAttribute(key, rating + 1)}>
-                +
-              </button>
-              <span className="cost">{cost} pts</span>
-            </div>
-          );
-        })}
+            return (
+              <div
+                key={key}
+                className={`attribute-row ${key === selectedKey ? "selected" : ""}`}
+                onClick={() => setSelectedKey(key)}
+              >
+                <span className="attribute-name" title={ATTRIBUTE_LABELS[key]}>
+                  {ATTRIBUTE_ABBREVIATIONS[key]}
+                </span>
+                <button
+                  disabled={rating <= campaign.attributeMin}
+                  onClick={event => { event.stopPropagation(); setAttribute(key, rating - 1); }}
+                >
+                  -
+                </button>
+                <span className="rating-value">{rating}</span>
+                <button
+                  disabled={rating >= campaign.attributeMax}
+                  onClick={event => { event.stopPropagation(); setAttribute(key, rating + 1); }}
+                >
+                  +
+                </button>
+                <span className="cost">{cost} pts</span>
+              </div>
+            );
+          })}
+        </div>
+        <div className="pane details-pane">
+          <h3>Details</h3>
+          {renderDetails()}
+        </div>
       </div>
     </div>
   );

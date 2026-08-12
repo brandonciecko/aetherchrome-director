@@ -4,6 +4,8 @@ export interface SkillDefinition {
   id: string;
   name: string;
   parentId: string | null;
+  /** Public/production-facing description of what the Skill covers (Core's `concept` field). */
+  description: string;
 }
 
 /**
@@ -21,7 +23,8 @@ export const SKILL_REGISTRY: SkillDefinition[] = CORE_SKILLS.filter(skill => ski
   skill => ({
     id: skill.id,
     name: skill.name,
-    parentId: skill.parent_skill_id ?? null
+    parentId: skill.parent_skill_id ?? null,
+    description: skill.concept
   })
 );
 

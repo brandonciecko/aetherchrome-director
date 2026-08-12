@@ -10,8 +10,8 @@ content is derived from it, not an independent design surface) and
 see "The Foundry Bridge" below for the current gap).
 
 Director depends on Core's generated registry data via the `aetherchrome-core-data`
-package, vendored as a single tarball at `vendor/aetherchrome-core-data-0.1.0.tgz`
-(`package.json`: `"aetherchrome-core-data": "file:./vendor/aetherchrome-core-data-0.1.0.tgz"`).
+package, vendored as a single tarball at `vendor/aetherchrome-core-data-0.2.0.tgz`
+(`package.json`: `"aetherchrome-core-data": "file:./vendor/aetherchrome-core-data-0.2.0.tgz"`).
 That tarball is produced in Core with `npm run pack-data` (a thin `npm pack`
 wrapper — Core's own `package.json` already restricts `files` to
 `generated/json`, `generated/csv`, and `schemas`) and copied into this repo's
@@ -67,20 +67,32 @@ versioning scheme this tarball's version corresponds to.
 - **Derived live from Core, not hand-typed:** `SKILL_REGISTRY` (the full Skill
   topology, via `core-data.ts` — Skill IDs are Core's real `SKL-*` codes, not
   ad hoc slugs); `ITEM_REGISTRY`'s stats (category/Item Rating/Load/Base
-  Value, resolved per curated item ID); and `CROWNSHARD_REALMS_CAMPAIGN`'s
+  Value, resolved per curated item ID); `CROWNSHARD_REALMS_CAMPAIGN`'s
   identity, Skill-max/refund-cap/economy baseline fields, and
-  `availableSkillIds`/`availableTraitIds`.
-- **Still hand-maintained, not yet derivable from Core:** `attributes.ts`
-  (fixed formulas/constants with no per-registry equivalent in Core to drift
-  against); `TRAIT_REGISTRY`'s mechanics — cost/rank/effect text (Core
-  sometimes expresses a Trait's max rank as a dynamic reference like `"Base
-  Health"` rather than a plain number, which needs per-trait judgment to
-  translate — flagged as follow-up, not resolved); `ITEM_REGISTRY`'s
-  *membership* (which 20 items are curated in, and their hand-authored
-  `notes`) — Core's per-campaign item availability is category-level only and
-  explicitly states category approval doesn't imply approval of every Item in
-  it, so this stays a hand-curated allowlist by design, not something to
-  auto-expand from Core.
+  `availableSkillIds`/`availableTraitIds`; and, as of `aetherchrome-core-data`
+  0.2.0, `ATTRIBUTE_LABELS`/`ATTRIBUTE_ABBREVIATIONS`/`ATTRIBUTE_DESCRIPTIONS`
+  in `attributes.ts` (mapped from Director's fixed lowercase `AttributeKey`
+  scheme to Core's `ATTR-*` records via `CORE_ATTRIBUTE_ID`).
+- **Public/production-facing descriptions** now flow through end to end for
+  every registry Director surfaces a details panel for: `SkillDefinition.description`
+  (Core's `concept` field), `ItemDefinition.description` (Core's `description`
+  field), and `ATTRIBUTE_DESCRIPTIONS` (Core's `description` field, added to
+  the Attribute registry 2026-08-11 — it previously had no prose field at
+  all). If you add a details panel for a registry that doesn't have one of
+  these yet, check Core's schema for an existing prose field first (Traits
+  use `summary`, Statuses/Situations use `description`, most reference tables
+  use `definition` or `meaning`) before assuming one needs to be added there.
+- **Still hand-maintained, not yet derivable from Core:** `attributes.ts`'s
+  cost-curve formulas (`attributeStepCost`/`attributeCumulativeCost` — pure
+  game-math, not per-registry content); `TRAIT_REGISTRY`'s mechanics —
+  cost/rank/effect text (Core sometimes expresses a Trait's max rank as a
+  dynamic reference like `"Base Health"` rather than a plain number, which
+  needs per-trait judgment to translate — flagged as follow-up, not
+  resolved); `ITEM_REGISTRY`'s *membership* (which 20 items are curated in,
+  and their hand-authored `notes`) — Core's per-campaign item availability is
+  category-level only and explicitly states category approval doesn't imply
+  approval of every Item in it, so this stays a hand-curated allowlist by
+  design, not something to auto-expand from Core.
 - Every hand-maintained constant/derivation that encodes a rule cites its core
   source in a comment (e.g. `source: AEC — Attribute Costs v0.1, resolves
   OD-012`). Keep doing this for new rules content — an uncited number is a

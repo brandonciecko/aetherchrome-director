@@ -1,23 +1,37 @@
+import { getCoreAttribute } from "./core-data";
+
 export const ATTRIBUTE_KEYS = ["strength", "health", "intelligence", "agility", "charisma", "essence"] as const;
 export type AttributeKey = (typeof ATTRIBUTE_KEYS)[number];
 
-export const ATTRIBUTE_LABELS: Record<AttributeKey, string> = {
-  strength: "Strength",
-  health: "Health",
-  intelligence: "Intelligence",
-  agility: "Agility",
-  charisma: "Charisma",
-  essence: "Essence"
+/**
+ * Director's fixed lowercase key scheme (used throughout DraftActor.attributes,
+ * etc.) mapped to Core's real Attribute record IDs — labels, abbreviations,
+ * and descriptions below are derived from Core (aetherchrome-core-data)
+ * rather than hand-typed, so Core's 2026-08-11 addition of a public
+ * description per Attribute (previously nonexistent) flows through here
+ * automatically instead of needing to be retyped.
+ */
+const CORE_ATTRIBUTE_ID: Record<AttributeKey, string> = {
+  strength: "ATTR-STR",
+  health: "ATTR-HLT",
+  intelligence: "ATTR-INT",
+  agility: "ATTR-AGL",
+  charisma: "ATTR-CHA",
+  essence: "ATTR-ESS"
 };
 
-export const ATTRIBUTE_ABBREVIATIONS: Record<AttributeKey, string> = {
-  strength: "STR",
-  health: "HLT",
-  intelligence: "INT",
-  agility: "AGL",
-  charisma: "CHA",
-  essence: "ESS"
-};
+export const ATTRIBUTE_LABELS: Record<AttributeKey, string> = Object.fromEntries(
+  ATTRIBUTE_KEYS.map(key => [key, getCoreAttribute(CORE_ATTRIBUTE_ID[key]).name])
+) as Record<AttributeKey, string>;
+
+export const ATTRIBUTE_ABBREVIATIONS: Record<AttributeKey, string> = Object.fromEntries(
+  ATTRIBUTE_KEYS.map(key => [key, getCoreAttribute(CORE_ATTRIBUTE_ID[key]).abbreviation])
+) as Record<AttributeKey, string>;
+
+/** Public/production-facing description of what each Attribute governs. */
+export const ATTRIBUTE_DESCRIPTIONS: Record<AttributeKey, string> = Object.fromEntries(
+  ATTRIBUTE_KEYS.map(key => [key, getCoreAttribute(CORE_ATTRIBUTE_ID[key]).description])
+) as Record<AttributeKey, string>;
 
 /** System-wide standard range (source: Project Manifest Registry Attributes table). */
 export const STANDARD_ATTRIBUTE_MIN = 1;
