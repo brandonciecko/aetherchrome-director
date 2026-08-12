@@ -1,26 +1,6 @@
 import { getCoreCampaign, getCoreCampaignAvailability } from "../core-data";
 import { TRAIT_REGISTRY } from "../traits";
-
-export interface CampaignProfile {
-  id: string;
-  name: string;
-  startingPoints: number;
-  attributeBaseline: number;
-  attributeMin: number;
-  attributeMax: number;
-  startingSkillMax: number;
-  disadvantageRefundCap: number;
-  pressureCap: number;
-  startingPossessionAllowanceVU: number;
-  startingFundsVU: number;
-  /** Fraction of unused Possession Allowance converted to Funds after equipment selection. */
-  unusedAllowanceConversionRate: number;
-  /** No Value Biases are registered for this campaign; assume 1.0 (see plan Assumption 3). */
-  valueBias: number;
-  availableSkillIds: string[];
-  availableTraitIds: string[];
-  availableItemIds: string[];
-}
+import type { CampaignProfile } from "./index";
 
 const CORE_CAMPAIGN_ID = "CMP-CROWNSHARD-REALMS";
 const core = getCoreCampaign(CORE_CAMPAIGN_ID);
