@@ -1,8 +1,9 @@
-import { ITEM_REGISTRY } from "../../rules/items";
+import { ITEM_REGISTRY, type ItemDefinition } from "../../rules/items";
 import type { CampaignProfile } from "../../rules/campaigns";
 import type { CreationResult } from "../../rules/creation";
 import type { DraftActor } from "../../rules/types";
 import type { DraftUpdater } from "./types";
+import { DualPaneSelector } from "../components/DualPaneSelector";
 
 export function EquipmentStep({
   draft,
@@ -31,6 +32,54 @@ export function EquipmentStep({
     });
   }
 
+  const appliedItems = available.filter(item => quantityOf(item.id) > 0);
+  const availableItems = available.filter(item => quantityOf(item.id) <= 0);
+
+  function handleAdd(itemId: string) {
+    if (quantityOf(itemId) > 0) return;
+    setQuantity(itemId, 1);
+  }
+
+  function handleRemove(itemId: string) {
+    setQuantity(itemId, 0);
+  }
+
+  function renderCard(item: ItemDefinition, { applied }: { applied: boolean }) {
+    const quantity = quantityOf(item.id);
+
+    return (
+      <div className="dual-pane-card-content">
+        <div className="card-header">
+          <span className="card-name">{item.name}</span>
+          <span className="card-cost">{item.baseValueVU} VU</span>
+        </div>
+        <span className="card-subtext">{item.category}</span>
+        {applied && (
+          <div className="rating-cell" onClick={event => event.stopPropagation()}>
+            <button disabled={quantity <= 1} onClick={() => setQuantity(item.id, quantity - 1)}>
+              -
+            </button>
+            <span className="rating-value">{quantity}</span>
+            <button onClick={() => setQuantity(item.id, quantity + 1)}>+</button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  function renderDetails(item: ItemDefinition) {
+    return (
+      <div className="item-details">
+        <h4>{item.name}</h4>
+        <p className="detail-cost">{item.baseValueVU} VU</p>
+        <p>Category: {item.category}</p>
+        <p>Item Rating: {item.itemRating}</p>
+        <p>Load: {item.load}</p>
+        {item.notes && <p className="detail-limit">{item.notes}</p>}
+      </div>
+    );
+  }
+
   return (
     <div className="step equipment-step">
       <h2>Equipment</h2>
@@ -39,39 +88,17 @@ export function EquipmentStep({
         Unused allowance converts to Funds at {campaign.unusedAllowanceConversionRate * 100}% once you leave this step.
       </p>
 
-      <table className="equipment-table">
-        <thead>
-          <tr>
-            <th>Item</th>
-            <th>Category</th>
-            <th>Rating</th>
-            <th>Load</th>
-            <th>Price (VU)</th>
-            <th>Quantity</th>
-          </tr>
-        </thead>
-        <tbody>
-          {available.map(item => {
-            const quantity = quantityOf(item.id);
-            return (
-              <tr key={item.id}>
-                <td>{item.name}</td>
-                <td>{item.category}</td>
-                <td>{item.itemRating}</td>
-                <td>{item.load}</td>
-                <td>{item.baseValueVU}</td>
-                <td>
-                  <button disabled={quantity <= 0} onClick={() => setQuantity(item.id, quantity - 1)}>
-                    -
-                  </button>
-                  <span className="rating-value">{quantity}</span>
-                  <button onClick={() => setQuantity(item.id, quantity + 1)}>+</button>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <DualPaneSelector
+        applied={appliedItems}
+        available={availableItems}
+        getId={item => item.id}
+        onAdd={handleAdd}
+        onRemove={handleRemove}
+        appliedLabel="Carried"
+        availableLabel="Available"
+        renderCard={renderCard}
+        renderDetails={renderDetails}
+      />
     </div>
   );
 }

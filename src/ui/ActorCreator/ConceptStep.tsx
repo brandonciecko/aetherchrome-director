@@ -36,7 +36,7 @@ export function ConceptStep({
           }}
         />
       </label>
-      <p className="campaign-note">Campaign: {campaign.name} (chosen when this Actor was created; not editable here).</p>
+      <p className="campaign-note">Campaign: {campaign.name}</p>
     </div>
   );
 }

@@ -96,11 +96,16 @@
   margin-bottom: 1rem;
 }
 
-.attribute-grid,
-.skill-row {
+.attribute-grid {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+}
+
+.skills-step {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .attribute-row,
@@ -120,47 +125,140 @@
   text-align: center;
 }
 
-.trait-grid {
-  list-style: none;
-  padding: 0;
+.dual-pane {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  align-items: start;
 }
 
-.trait-card {
+.pane {
   border: 1px solid #2a2e37;
   border-radius: 8px;
   padding: 0.75rem;
+  min-height: 200px;
 }
 
-.trait-card.taken {
-  border-color: #3a3f4b;
+.pane h3 {
+  margin-top: 0;
+  font-size: 0.9rem;
+  color: #9aa4b2;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.pane ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.empty-hint {
+  color: #6b7280;
+  font-size: 0.85rem;
+  font-style: italic;
+  border: 1px dashed #2a2e37;
+  border-radius: 6px;
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.dual-pane-card {
+  border: 1px solid #2a2e37;
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  cursor: grab;
   background: #1a1d23;
 }
 
-.trait-header {
+.dual-pane-card.selected {
+  border-color: #7dd3fc;
+}
+
+.dual-pane-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.card-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
   font-weight: 600;
 }
 
-.trait-effect,
-.trait-limit {
-  font-size: 0.85rem;
+.card-tag {
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  border: 1px solid #3a3f4b;
   color: #9aa4b2;
 }
 
-.equipment-table {
-  width: 100%;
-  border-collapse: collapse;
+.card-tag.advantage {
+  color: #4ade80;
+  border-color: #365a3f;
 }
 
-.equipment-table th,
-.equipment-table td {
-  text-align: left;
-  padding: 0.4rem 0.5rem;
-  border-bottom: 1px solid #2a2e37;
+.card-tag.disadvantage {
+  color: #f87171;
+  border-color: #5a3636;
+}
+
+.card-cost,
+.card-subtext {
+  font-size: 0.8rem;
+  color: #9aa4b2;
+}
+
+.rating-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+}
+
+.rating-cell button {
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #3a3f4b;
+  background: #14161a;
+  color: inherit;
+}
+
+.rating-cell button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.dual-pane-details {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #2a2e37;
+}
+
+.item-details h4 {
+  margin: 0 0 0.25rem;
+}
+
+.item-details p {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+}
+
+.detail-cost {
+  color: #7dd3fc;
+}
+
+.detail-limit {
+  color: #9aa4b2;
+  font-size: 0.85rem;
 }
 
 .save-button {
