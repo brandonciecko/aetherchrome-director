@@ -1,7 +1,18 @@
+import type { CampaignProfile } from "../../rules/campaigns";
 import type { CreationResult } from "../../rules/creation";
 import type { DraftActor } from "../../rules/types";
 
-export function ReviewStep({ draft, result, onSave }: { draft: DraftActor; result: CreationResult; onSave: () => void }) {
+export function ReviewStep({
+  draft,
+  result,
+  campaign,
+  onSave
+}: {
+  draft: DraftActor;
+  result: CreationResult;
+  campaign: CampaignProfile;
+  onSave: () => void;
+}) {
   return (
     <div className="step review-step">
       <h2>Review</h2>
@@ -20,7 +31,7 @@ export function ReviewStep({ draft, result, onSave }: { draft: DraftActor; resul
       </dl>
 
       {result.legal ? (
-        <p className="status-legal">This Actor is legal for The Crownshard Realms. You can save it.</p>
+        <p className="status-legal">This Actor is legal for {campaign.name}. You can save it.</p>
       ) : (
         <div className="status-incomplete">
           <p>This Actor isn't legal yet:</p>

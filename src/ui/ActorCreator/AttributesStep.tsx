@@ -1,5 +1,5 @@
 import { ATTRIBUTE_ABBREVIATIONS, ATTRIBUTE_KEYS, ATTRIBUTE_LABELS, attributeCumulativeCost } from "../../rules/attributes";
-import type { CampaignProfile } from "../../rules/campaigns/crownshard-realms";
+import type { CampaignProfile } from "../../rules/campaigns";
 import type { DraftActor } from "../../rules/types";
 import type { DraftUpdater } from "./types";
 

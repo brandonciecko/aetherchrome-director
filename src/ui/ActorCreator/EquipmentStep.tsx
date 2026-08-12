@@ -1,5 +1,5 @@
 import { ITEM_REGISTRY } from "../../rules/items";
-import type { CampaignProfile } from "../../rules/campaigns/crownshard-realms";
+import type { CampaignProfile } from "../../rules/campaigns";
 import type { CreationResult } from "../../rules/creation";
 import type { DraftActor } from "../../rules/types";
 import type { DraftUpdater } from "./types";

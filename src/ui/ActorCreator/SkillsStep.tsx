@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { SKILL_REGISTRY, getSkill, skillCumulativeCost } from "../../rules/skills";
-import type { CampaignProfile } from "../../rules/campaigns/crownshard-realms";
+import type { CampaignProfile } from "../../rules/campaigns";
 import type { DraftActor } from "../../rules/types";
 import type { DraftUpdater } from "./types";
 

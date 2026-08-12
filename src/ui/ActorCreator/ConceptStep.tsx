@@ -1,7 +1,16 @@
+import type { CampaignProfile } from "../../rules/campaigns";
 import type { DraftActor } from "../../rules/types";
 import type { DraftUpdater } from "./types";
 
-export function ConceptStep({ draft, onChange }: { draft: DraftActor; onChange: DraftUpdater }) {
+export function ConceptStep({
+  draft,
+  onChange,
+  campaign
+}: {
+  draft: DraftActor;
+  onChange: DraftUpdater;
+  campaign: CampaignProfile;
+}) {
   return (
     <div className="step concept-step">
       <h2>Concept</h2>
@@ -27,7 +36,7 @@ export function ConceptStep({ draft, onChange }: { draft: DraftActor; onChange: 
           }}
         />
       </label>
-      <p className="campaign-note">Campaign: The Crownshard Realms (the only campaign profile available so far).</p>
+      <p className="campaign-note">Campaign: {campaign.name} (chosen when this Actor was created; not editable here).</p>
     </div>
   );
 }

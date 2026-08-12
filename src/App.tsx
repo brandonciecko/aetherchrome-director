@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CROWNSHARD_REALMS_CAMPAIGN } from "./rules/campaigns/crownshard-realms";
+import { AVAILABLE_CAMPAIGNS, getCampaign } from "./rules/campaigns";
 import { ATTRIBUTE_KEYS } from "./rules/attributes";
 import { createBlankDraftActor, type DraftActor } from "./rules/types";
 import { indexedDbActorStore } from "./storage/actor-store";
@@ -13,6 +13,7 @@ export default function App() {
   const [actors, setActors] = useState<DraftActor[]>([]);
   const [view, setView] = useState<View>({ screen: "home" });
   const [importError, setImportError] = useState<string | null>(null);
+  const [selectedCampaignId, setSelectedCampaignId] = useState(AVAILABLE_CAMPAIGNS[0].id);
 
   async function refreshActors() {
     setActors(await indexedDbActorStore.list());
@@ -23,7 +24,9 @@ export default function App() {
   }, []);
 
   function handleNewActor() {
-    const draft = createBlankDraftActor(CROWNSHARD_REALMS_CAMPAIGN.id, CROWNSHARD_REALMS_CAMPAIGN.attributeBaseline, ATTRIBUTE_KEYS);
+    const campaign = getCampaign(selectedCampaignId);
+    if (!campaign) return;
+    const draft = createBlankDraftActor(campaign.id, campaign.attributeBaseline, ATTRIBUTE_KEYS);
     setView({ screen: "creator", actor: draft });
   }
 
@@ -72,10 +75,20 @@ export default function App() {
     <div className="home">
       <header>
         <h1>Aetherchrome Director</h1>
-        <p className="subtitle">Actor Creator &mdash; {CROWNSHARD_REALMS_CAMPAIGN.name}</p>
+        <p className="subtitle">Actor Creator</p>
       </header>
 
       <div className="home-actions">
+        <label className="campaign-select">
+          Campaign
+          <select value={selectedCampaignId} onChange={event => setSelectedCampaignId(event.target.value)}>
+            {AVAILABLE_CAMPAIGNS.map(campaign => (
+              <option key={campaign.id} value={campaign.id}>
+                {campaign.name}
+              </option>
+            ))}
+          </select>
+        </label>
         <button onClick={handleNewActor}>New Actor</button>
         <label className="import-button">
           Import Actor&hellip;
@@ -101,6 +114,7 @@ export default function App() {
             <li key={actor.id}>
               <div className="actor-summary">
                 <span className="actor-name">{actor.name || "(unnamed)"}</span>
+                <span className="actor-campaign">{getCampaign(actor.campaignId)?.name ?? "Unknown campaign"}</span>
                 <span className="actor-concept">{actor.concept}</span>
               </div>
               <div className="actor-list-actions">

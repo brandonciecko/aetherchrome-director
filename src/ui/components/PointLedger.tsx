@@ -1,4 +1,4 @@
-import type { CampaignProfile } from "../../rules/campaigns/crownshard-realms";
+import type { CampaignProfile } from "../../rules/campaigns";
 import type { CreationResult } from "../../rules/creation";
 
 export function PointLedger({ campaign, result }: { campaign: CampaignProfile; result: CreationResult }) {

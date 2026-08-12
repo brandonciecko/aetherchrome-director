@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { CROWNSHARD_REALMS_CAMPAIGN } from "../../rules/campaigns/crownshard-realms";
+import { getCampaign } from "../../rules/campaigns";
 import { evaluateDraftActor } from "../../rules/creation";
 import type { DraftActor } from "../../rules/types";
 import { indexedDbActorStore } from "../../storage/actor-store";
@@ -19,7 +19,15 @@ export function ActorCreator({ actor, onDone }: { actor: DraftActor; onDone: () 
   const [stepIndex, setStepIndex] = useState(0);
   const step = STEPS[stepIndex];
 
-  const result = useMemo(() => evaluateDraftActor(draft, CROWNSHARD_REALMS_CAMPAIGN), [draft]);
+  // The campaign an Actor was created under travels with it (draft.campaignId),
+  // set once at creation time (see App.tsx's New Actor campaign picker) — the
+  // wizard itself doesn't let you change campaigns mid-creation.
+  const campaign = getCampaign(draft.campaignId);
+  if (!campaign) {
+    throw new Error(`Actor targets unknown campaign "${draft.campaignId}"`);
+  }
+
+  const result = useMemo(() => evaluateDraftActor(draft, campaign), [draft, campaign]);
 
   function updateDraft(updater: (draft: DraftActor) => DraftActor) {
     setDraft(prev => updater(prev));
@@ -36,7 +44,7 @@ export function ActorCreator({ actor, onDone }: { actor: DraftActor; onDone: () 
         <button className="back-button" onClick={onDone}>
           &larr; Back to Actors
         </button>
-        <PointLedger campaign={CROWNSHARD_REALMS_CAMPAIGN} result={result} />
+        <PointLedger campaign={campaign} result={result} />
       </aside>
 
       <main className="creator-main">
@@ -49,14 +57,14 @@ export function ActorCreator({ actor, onDone }: { actor: DraftActor; onDone: () 
         </nav>
 
         <div className="step-content">
-          {step === "Concept" && <ConceptStep draft={draft} onChange={updateDraft} />}
-          {step === "Attributes" && <AttributesStep draft={draft} onChange={updateDraft} campaign={CROWNSHARD_REALMS_CAMPAIGN} />}
-          {step === "Skills" && <SkillsStep draft={draft} onChange={updateDraft} campaign={CROWNSHARD_REALMS_CAMPAIGN} />}
-          {step === "Traits" && <TraitsStep draft={draft} onChange={updateDraft} campaign={CROWNSHARD_REALMS_CAMPAIGN} />}
+          {step === "Concept" && <ConceptStep draft={draft} onChange={updateDraft} campaign={campaign} />}
+          {step === "Attributes" && <AttributesStep draft={draft} onChange={updateDraft} campaign={campaign} />}
+          {step === "Skills" && <SkillsStep draft={draft} onChange={updateDraft} campaign={campaign} />}
+          {step === "Traits" && <TraitsStep draft={draft} onChange={updateDraft} campaign={campaign} />}
           {step === "Equipment" && (
-            <EquipmentStep draft={draft} onChange={updateDraft} campaign={CROWNSHARD_REALMS_CAMPAIGN} result={result} />
+            <EquipmentStep draft={draft} onChange={updateDraft} campaign={campaign} result={result} />
           )}
-          {step === "Review" && <ReviewStep draft={draft} result={result} onSave={handleSave} />}
+          {step === "Review" && <ReviewStep draft={draft} result={result} campaign={campaign} onSave={handleSave} />}
         </div>
 
         <div className="step-nav">

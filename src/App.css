@@ -29,6 +29,22 @@
   color: inherit;
 }
 
+.campaign-select {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #9aa4b2;
+}
+
+.campaign-select select {
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #3a3f4b;
+  background: #1e2128;
+  color: inherit;
+}
+
 .import-button input {
   display: none;
 }
@@ -65,6 +81,11 @@
 
 .actor-name {
   font-weight: 600;
+}
+
+.actor-campaign {
+  color: #7dd3fc;
+  font-size: 0.8rem;
 }
 
 .actor-concept {

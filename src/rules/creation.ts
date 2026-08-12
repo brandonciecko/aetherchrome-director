@@ -2,7 +2,7 @@ import { ATTRIBUTE_KEYS, attributeCumulativeCost } from "./attributes";
 import { SKILL_REGISTRY, skillCumulativeCost, validateSkillHierarchy } from "./skills";
 import { getTrait } from "./traits";
 import { getItem } from "./items";
-import type { CampaignProfile } from "./campaigns/crownshard-realms";
+import type { CampaignProfile } from "./campaigns";
 import type { DraftActor } from "./types";
 
 export interface DerivedStats {

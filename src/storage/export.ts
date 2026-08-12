@@ -1,4 +1,4 @@
-import { CROWNSHARD_REALMS_CAMPAIGN } from "../rules/campaigns/crownshard-realms";
+import { getCampaign } from "../rules/campaigns";
 import { evaluateDraftActor } from "../rules/creation";
 import type { DraftActor } from "../rules/types";
 
@@ -46,11 +46,12 @@ export function importActorFromJSON(json: string): DraftActor {
   }
 
   const actor = file.actor;
-  if (actor.campaignId !== CROWNSHARD_REALMS_CAMPAIGN.id) {
+  const campaign = getCampaign(actor.campaignId);
+  if (!campaign) {
     throw new ActorImportError(`Actor targets unknown campaign "${actor.campaignId}".`);
   }
 
-  const result = evaluateDraftActor(actor, CROWNSHARD_REALMS_CAMPAIGN);
+  const result = evaluateDraftActor(actor, campaign);
   if (result.issues.length > 0) {
     throw new ActorImportError(`Imported Actor fails current ruleset validation: ${result.issues.join("; ")}`);
   }

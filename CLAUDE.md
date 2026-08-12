@@ -37,12 +37,21 @@ versioning scheme this tarball's version corresponds to.
   record. Director doesn't need to model Current Attributes, Statuses, or
   anything else that only matters mid-session.
 - PC creation only today — there is no NPC/GM-facing path yet.
-- Only one campaign profile exists (`CROWNSHARD_REALMS_CAMPAIGN`, The
-  Crownshard Realms — renamed from its working codename "Alpha 0.1" in Core on
-  2026-08-05) — the creator UI and import validation both hardcode it as the
-  active campaign. Adding a second campaign means threading campaign selection
-  through `App.tsx`/`ActorCreator`, not just adding a second `CampaignProfile`
-  object.
+- Campaign selection is real, not hardcoded (as of 2026-08-12): `App.tsx`'s
+  home screen has a Campaign picker driven by `AVAILABLE_CAMPAIGNS`
+  (`src/rules/campaigns/index.ts`), and a Draft Actor's chosen campaign
+  travels with it as `draft.campaignId` — `ActorCreator` resolves the actual
+  `CampaignProfile` via `getCampaign(draft.campaignId)` rather than any
+  component hardcoding a specific campaign. Only **The Crownshard Realms**
+  (`CROWNSHARD_REALMS_CAMPAIGN`) is listed today. Core also registers a
+  second campaign, **OIT** (`CMP-OIT`), but its own record says so itself:
+  "Everything [is open]... No Actor Creation controls, Wealth baseline, or
+  setting content are established" — it's a structural stub proving the
+  campaign-overlay pattern generalizes, not real content, so it's
+  deliberately excluded from `AVAILABLE_CAMPAIGNS` rather than exposed
+  half-working. Add a real second campaign by giving it its own file
+  alongside `crownshard-realms.ts` and registering it in that array — the
+  UI/validation plumbing already supports more than one.
 
 ## Rules Data — Source of Truth
 
@@ -104,10 +113,13 @@ versioning scheme this tarball's version corresponds to.
   "Rules Data — Source of Truth" above).
 - `src/rules/attributes.ts`, `skills.ts`, `traits.ts`, `items.ts` — registries
   and their cost/validation functions.
-- `src/rules/campaigns/crownshard-realms.ts` — the `CampaignProfile` shape and
-  the Crownshard Realms profile itself (point budget, ranges, per-campaign
-  availability lists). New campaigns are new files here, not edits to
-  Crownshard Realms' values.
+- `src/rules/campaigns/crownshard-realms.ts` — the Crownshard Realms profile
+  itself (point budget, ranges, per-campaign availability lists). New
+  campaigns are new files here, not edits to Crownshard Realms' values.
+- `src/rules/campaigns/index.ts` — the `CampaignProfile` type, `AVAILABLE_CAMPAIGNS`
+  (the list the UI's Campaign picker renders), and `getCampaign(id)`. This is
+  what everything outside `campaigns/` should import from, not a specific
+  campaign's own file — see "What Director Is / Isn't" above.
 - `src/storage/actor-store.ts` — `ActorStore` interface with an IndexedDB
   implementation (`indexedDbActorStore`). Call sites depend on the interface,
   not IndexedDB directly, so a future sync backend can swap in without
