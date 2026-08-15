@@ -66,7 +66,19 @@ export function DualPaneSelector<T>({
                 onClick={() => setSelectedId(id)}
                 className={`dual-pane-card ${id === selectedId ? "selected" : ""}`}
               >
-                {renderCard(item, { applied: true })}
+                <div className="dual-pane-card-row">
+                  <div className="dual-pane-card-body">{renderCard(item, { applied: true })}</div>
+                  <button
+                    className="pane-toggle"
+                    aria-label={`Remove from ${appliedLabel}`}
+                    onClick={event => {
+                      event.stopPropagation();
+                      onRemove(id);
+                    }}
+                  >
+                    &rarr;
+                  </button>
+                </div>
               </li>
             );
           })}
@@ -87,7 +99,19 @@ export function DualPaneSelector<T>({
                 onClick={() => setSelectedId(id)}
                 className={`dual-pane-card ${id === selectedId ? "selected" : ""}`}
               >
-                {renderCard(item, { applied: false })}
+                <div className="dual-pane-card-row">
+                  <button
+                    className="pane-toggle"
+                    aria-label={`Add to ${appliedLabel}`}
+                    onClick={event => {
+                      event.stopPropagation();
+                      onAdd(id);
+                    }}
+                  >
+                    &larr;
+                  </button>
+                  <div className="dual-pane-card-body">{renderCard(item, { applied: false })}</div>
+                </div>
               </li>
             );
           })}

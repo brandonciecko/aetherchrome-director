@@ -202,8 +202,12 @@ versioning scheme this tarball's version corresponds to.
   deploys happen through the Cloudflare-side build trigger, not this script.
 - **Build/version identity is visible in the running app** (`src/version.ts`,
   rendered by `VersionFooter` on both the home screen and the Actor Creator
-  sidebar): `APP_VERSION` is `package.json`'s `version` field — bump it by
-  hand for a notable release — and `BUILD_COMMIT`/`BUILD_DATE` are generated
+  sidebar): `APP_VERSION` is `package.json`'s `version` field, `v0.y.x` —
+  bump it by hand per this convention: `x` (patch) increments by default for
+  every notable change; `y` (minor) only bumps on an explicit "major
+  version" call from the project owner, which resets `x` back to `0`. There
+  is no `1.0.0` cutover implied by this — `y` is just this project's
+  "major" marker pre-1.0. `BUILD_COMMIT`/`BUILD_DATE` are generated
   automatically at build time in `vite.config.ts` from the current git
   commit, so the on-page label always changes on a new deploy even if
   `version` wasn't bumped. This exists so it's possible to tell from the

@@ -4,7 +4,10 @@ import packageJson from "../package.json";
  * App version + build identity, shown in the UI (see ui/components/VersionFooter.tsx)
  * so the deployed site always reveals what it's actually running.
  *
- * APP_VERSION is package.json's version — bump it by hand for a notable release.
+ * APP_VERSION is package.json's version (v0.y.x) — bump it by hand per this
+ * convention: x (patch) increments by default for every notable change; y
+ * (minor) only bumps on an explicit "major version" call from the project
+ * owner, which resets x back to 0.
  * BUILD_COMMIT/BUILD_DATE are generated automatically at build time (vite.config.ts)
  * from the current git commit, so the label still changes on every deploy even if
  * the version wasn't bumped for a given change.

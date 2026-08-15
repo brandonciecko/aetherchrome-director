@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { AVAILABLE_CAMPAIGNS, getCampaign } from "./rules/campaigns";
 import { ATTRIBUTE_KEYS } from "./rules/attributes";
+import { evaluateDraftActor } from "./rules/creation";
 import { createBlankDraftActor, type DraftActor } from "./rules/types";
 import { indexedDbActorStore } from "./storage/actor-store";
 import { ActorImportError, exportActorToJSON, importActorFromJSON } from "./storage/export";
 import { ActorCreator } from "./ui/ActorCreator/ActorCreator";
+import { ConfirmDialog } from "./ui/components/ConfirmDialog";
 import { VersionFooter } from "./ui/components/VersionFooter";
 import "./App.css";
 
@@ -15,6 +17,8 @@ export default function App() {
   const [view, setView] = useState<View>({ screen: "home" });
   const [importError, setImportError] = useState<string | null>(null);
   const [selectedCampaignId, setSelectedCampaignId] = useState(AVAILABLE_CAMPAIGNS[0].id);
+  const [pendingDelete, setPendingDelete] = useState<DraftActor | null>(null);
+  const [pendingExport, setPendingExport] = useState<DraftActor | null>(null);
 
   async function refreshActors() {
     setActors(await indexedDbActorStore.list());
@@ -35,12 +39,24 @@ export default function App() {
     setView({ screen: "creator", actor });
   }
 
-  async function handleDeleteActor(id: string) {
-    await indexedDbActorStore.delete(id);
+  /** Returns null when the Actor's campaign can't be resolved (e.g. a stale/unknown campaignId). */
+  function evaluateActor(actor: DraftActor) {
+    const campaign = getCampaign(actor.campaignId);
+    return campaign ? evaluateDraftActor(actor, campaign) : null;
+  }
+
+  function requestDeleteActor(actor: DraftActor) {
+    setPendingDelete(actor);
+  }
+
+  async function confirmDeleteActor() {
+    if (!pendingDelete) return;
+    await indexedDbActorStore.delete(pendingDelete.id);
+    setPendingDelete(null);
     await refreshActors();
   }
 
-  function handleExportActor(actor: DraftActor) {
+  function downloadActorExport(actor: DraftActor) {
     const json = exportActorToJSON(actor);
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -49,6 +65,21 @@ export default function App() {
     link.download = `${actor.name || "actor"}.aetherchrome.json`;
     link.click();
     URL.revokeObjectURL(url);
+  }
+
+  function handleExportActor(actor: DraftActor) {
+    const result = evaluateActor(actor);
+    if (result && !result.legal) {
+      setPendingExport(actor);
+      return;
+    }
+    downloadActorExport(actor);
+  }
+
+  function confirmExportActor() {
+    if (!pendingExport) return;
+    downloadActorExport(pendingExport);
+    setPendingExport(null);
   }
 
   async function handleImportFile(file: File) {
@@ -71,6 +102,8 @@ export default function App() {
   if (view.screen === "creator") {
     return <ActorCreator actor={view.actor} onDone={handleDoneEditing} />;
   }
+
+  const visibleActors = actors.filter(actor => actor.campaignId === selectedCampaignId);
 
   return (
     <div className="home">
@@ -109,26 +142,69 @@ export default function App() {
 
       {actors.length === 0 ? (
         <p className="empty">No Actors yet. Create one to get started.</p>
+      ) : visibleActors.length === 0 ? (
+        <p className="empty">No Actors for {getCampaign(selectedCampaignId)?.name ?? "this campaign"} yet.</p>
       ) : (
         <ul className="actor-list">
-          {actors.map(actor => (
-            <li key={actor.id}>
-              <div className="actor-summary">
-                <span className="actor-name">{actor.name || "(unnamed)"}</span>
-                <span className="actor-campaign">{getCampaign(actor.campaignId)?.name ?? "Unknown campaign"}</span>
-                <span className="actor-concept">{actor.concept}</span>
-              </div>
-              <div className="actor-list-actions">
-                <button onClick={() => handleEditActor(actor)}>Edit</button>
-                <button onClick={() => handleExportActor(actor)}>Export</button>
-                <button onClick={() => handleDeleteActor(actor.id)}>Delete</button>
-              </div>
-            </li>
-          ))}
+          {visibleActors.map(actor => {
+            const result = evaluateActor(actor);
+            return (
+              <li key={actor.id}>
+                <div className="actor-summary">
+                  <span className="actor-name">
+                    {result && (
+                      <span className={result.legal ? "validity-badge valid" : "validity-badge invalid"} title={result.legal ? "Legal" : "Not legal"}>
+                        {result.legal ? "✓" : "✗"}
+                      </span>
+                    )}
+                    {actor.name || "(unnamed)"}
+                  </span>
+                  <span className="actor-campaign">{getCampaign(actor.campaignId)?.name ?? "Unknown campaign"}</span>
+                  <span className="actor-concept">{actor.concept}</span>
+                </div>
+                {result && (
+                  <div className="actor-stats">
+                    <span>
+                      HP {result.derivedStats.maxHP} / MP {result.derivedStats.maxMP}
+                    </span>
+                    <span>
+                      {result.pointLedger.totalPointsSpent} / {result.pointLedger.totalPointsSpent + result.pointLedger.pointsRemaining} pts
+                    </span>
+                  </div>
+                )}
+                <div className="actor-list-actions">
+                  <button onClick={() => handleEditActor(actor)}>Edit</button>
+                  <button onClick={() => handleExportActor(actor)}>Export</button>
+                  <button onClick={() => requestDeleteActor(actor)}>Delete</button>
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
 
       <VersionFooter />
+
+      {pendingDelete && (
+        <ConfirmDialog
+          title="Delete Actor?"
+          message={`Delete "${pendingDelete.name || "(unnamed)"}"? This cannot be undone.`}
+          confirmLabel="Delete"
+          danger
+          onConfirm={confirmDeleteActor}
+          onCancel={() => setPendingDelete(null)}
+        />
+      )}
+
+      {pendingExport && (
+        <ConfirmDialog
+          title="Actor Isn't Legal"
+          message={`"${pendingExport.name || "(unnamed)"}" doesn't currently pass validation. Export it anyway?`}
+          confirmLabel="Continue Anyway"
+          onConfirm={confirmExportActor}
+          onCancel={() => setPendingExport(null)}
+        />
+      )}
     </div>
   );
 }

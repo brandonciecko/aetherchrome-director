@@ -69,6 +69,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
   padding: 0.75rem 1rem;
   border: 1px solid #2a2e37;
   border-radius: 8px;
@@ -77,9 +78,13 @@
 .actor-summary {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .actor-name {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
   font-weight: 600;
 }
 
@@ -91,11 +96,33 @@
 .actor-concept {
   color: #9aa4b2;
   font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.validity-badge.valid {
+  color: #4ade80;
+}
+
+.validity-badge.invalid {
+  color: #f87171;
+}
+
+.actor-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  flex: 1 1 auto;
+  color: #9aa4b2;
+  font-size: 0.85rem;
+  text-align: center;
 }
 
 .actor-list-actions {
   display: flex;
   gap: 0.5rem;
+  flex: 0 0 auto;
 }
 
 .actor-list-actions button {
@@ -104,4 +131,47 @@
   border: 1px solid #3a3f4b;
   background: #1e2128;
   color: inherit;
+}
+
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.dialog {
+  background: #1e2128;
+  border: 1px solid #3a3f4b;
+  border-radius: 8px;
+  padding: 1.25rem;
+  max-width: 400px;
+  width: 90%;
+}
+
+.dialog h3 {
+  margin-top: 0;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.dialog-actions button {
+  padding: 0.4rem 0.9rem;
+  border-radius: 6px;
+  border: 1px solid #3a3f4b;
+  background: #14161a;
+  color: inherit;
+}
+
+.dialog-confirm.danger {
+  border-color: #5a3636;
+  color: #f87171;
 }
