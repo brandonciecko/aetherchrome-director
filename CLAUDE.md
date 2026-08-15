@@ -10,8 +10,8 @@ content is derived from it, not an independent design surface) and
 see "The Foundry Bridge" below for the current gap).
 
 Director depends on Core's generated registry data via the `aetherchrome-core-data`
-package, vendored as a single tarball at `vendor/aetherchrome-core-data-0.2.5.tgz`
-(`package.json`: `"aetherchrome-core-data": "file:./vendor/aetherchrome-core-data-0.2.5.tgz"`).
+package, vendored as a single tarball at `vendor/aetherchrome-core-data-0.2.8.tgz`
+(`package.json`: `"aetherchrome-core-data": "file:./vendor/aetherchrome-core-data-0.2.8.tgz"`).
 That tarball is produced in Core with `npm run pack-data` (a thin `npm pack`
 wrapper — Core's own `package.json` already restricts `files` to
 `generated/json`, `generated/csv`, and `schemas`) and copied into this repo's
