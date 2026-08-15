@@ -44,7 +44,7 @@ export function ReviewStep({
         </div>
       )}
 
-      <button className="save-button" disabled={!result.legal} onClick={onSave}>
+      <button className="save-button" onClick={onSave}>
         Save Actor
       </button>
     </div>

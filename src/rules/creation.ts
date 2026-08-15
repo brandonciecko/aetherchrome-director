@@ -2,8 +2,9 @@ import { ATTRIBUTE_KEYS, ATTRIBUTE_STEP_DOWN_FLOOR, attributeCumulativeCost } fr
 import { SKILL_REGISTRY, skillCumulativeCost, validateSkillHierarchy } from "./skills";
 import { getTrait } from "./traits";
 import { getItem } from "./items";
+import { getOwnership } from "./types";
 import type { CampaignProfile } from "./campaigns";
-import type { DraftActor } from "./types";
+import type { DraftActor, OwnershipState } from "./types";
 
 export interface DerivedStats {
   maxHP: number;
@@ -29,13 +30,41 @@ export interface EquipmentLedger {
   totalFunds: number;
 }
 
+export interface InstitutionalLedger {
+  rank: number;
+  ceilingVU: number;
+  spentVU: number;
+  remainingVU: number;
+}
+
 export interface CreationResult {
   legal: boolean;
   issues: string[];
   pointLedger: PointLedger;
   equipmentLedger: EquipmentLedger;
+  institutionalLedger: InstitutionalLedger;
   derivedStats: DerivedStats;
 }
+
+/**
+ * VU ceiling by TRT-ADV-INSTITUTIONAL-SUPPORT rank (source: traits.ts's
+ * TRT-ADV-INSTITUTIONAL-SUPPORT.effectSummary — Crownshard Realms
+ * progression 100/500/1,000/5,000 VU for ranks 1-4).
+ */
+const INSTITUTIONAL_SUPPORT_CEILING_BY_RANK: Record<number, number> = { 1: 100, 2: 500, 3: 1000, 4: 5000 };
+
+/**
+ * Ownership States Core's Institutional Support Trait names as its
+ * "supported" resource ownership ("Supported resources normally have
+ * Issued, Institutional, Loaned, or Entrusted ownership"). Equipment in one
+ * of these states is requisitioned via the Trait rather than personally
+ * purchased, so it's exempt from the Possession Allowance and counted
+ * against the Trait's VU ceiling instead (Economic System §21.4: "Issued
+ * equipment does not consume personal Starting Possession Allowance").
+ * Leased/Rented are treated as personally-arranged, not institution-backed,
+ * and still cost Possession Allowance VU like Owned.
+ */
+const INSTITUTIONAL_OWNERSHIP_STATES: OwnershipState[] = ["issued", "institutional", "loaned", "entrusted"];
 
 export function evaluateDraftActor(draft: DraftActor, campaign: CampaignProfile): CreationResult {
   const issues: string[] = [];
@@ -133,7 +162,10 @@ export function evaluateDraftActor(draft: DraftActor, campaign: CampaignProfile)
     issues.push(`Over budget by ${-pointsRemaining} points`);
   }
 
+  const institutionalRank = draft.traits["TRT-ADV-INSTITUTIONAL-SUPPORT"] ?? 0;
+
   let vuSpent = 0;
+  let institutionalSpentVU = 0;
   for (const selection of draft.equipment) {
     const item = getItem(selection.itemId);
     if (!item) {
@@ -148,7 +180,16 @@ export function evaluateDraftActor(draft: DraftActor, campaign: CampaignProfile)
       issues.push(`${item.name}: quantity must be positive`);
       continue;
     }
-    vuSpent += item.baseValueVU * campaign.valueBias * selection.quantity;
+    const cost = item.baseValueVU * campaign.valueBias * selection.quantity;
+    const ownership = getOwnership(selection);
+    if (INSTITUTIONAL_OWNERSHIP_STATES.includes(ownership)) {
+      if (institutionalRank === 0) {
+        issues.push(`${item.name} is marked ${ownership} but the Actor has no Institutional Support`);
+      }
+      institutionalSpentVU += cost;
+    } else {
+      vuSpent += cost;
+    }
   }
   const allowanceRemaining = campaign.startingPossessionAllowanceVU - vuSpent;
   if (allowanceRemaining < 0) {
@@ -157,6 +198,13 @@ export function evaluateDraftActor(draft: DraftActor, campaign: CampaignProfile)
   // Assumption 2: rounding to the nearest whole VU is undocumented in the ruleset.
   const convertedFunds = Math.round(Math.max(0, allowanceRemaining) * campaign.unusedAllowanceConversionRate);
   const totalFunds = campaign.startingFundsVU + convertedFunds;
+
+  const institutionalCeilingVU = INSTITUTIONAL_SUPPORT_CEILING_BY_RANK[institutionalRank] ?? 0;
+  if (institutionalSpentVU > institutionalCeilingVU) {
+    issues.push(
+      `Institutional Support requisition spending (${institutionalSpentVU} VU) exceeds the rank ${institutionalRank} ceiling (${institutionalCeilingVU} VU)`
+    );
+  }
 
   const extraHPRanks = draft.traits["TRT-ADV-EXTRA-HP"] ?? 0;
   const maxHP = 2 * baseHealth + extraHPRanks;
@@ -180,6 +228,12 @@ export function evaluateDraftActor(draft: DraftActor, campaign: CampaignProfile)
       allowanceRemaining,
       convertedFunds,
       totalFunds
+    },
+    institutionalLedger: {
+      rank: institutionalRank,
+      ceilingVU: institutionalCeilingVU,
+      spentVU: institutionalSpentVU,
+      remainingVU: institutionalCeilingVU - institutionalSpentVU
     },
     derivedStats: {
       maxHP,

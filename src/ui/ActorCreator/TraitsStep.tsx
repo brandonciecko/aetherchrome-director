@@ -1,8 +1,16 @@
-import { TRAIT_REGISTRY, type TraitDefinition } from "../../rules/traits";
+import { useState } from "react";
+import { TRAIT_REGISTRY, type TraitClassification, type TraitDefinition } from "../../rules/traits";
 import type { CampaignProfile } from "../../rules/campaigns";
 import type { DraftActor } from "../../rules/types";
 import type { DraftUpdater } from "./types";
 import { DualPaneSelector } from "../components/DualPaneSelector";
+import { FilterBar, type FilterOption } from "../components/FilterBar";
+
+const CLASSIFICATION_FILTER_OPTIONS: FilterOption[] = [
+  { value: "All", label: "All Types" },
+  { value: "advantage", label: "Advantage" },
+  { value: "disadvantage", label: "Disadvantage" }
+];
 
 export function TraitsStep({
   draft,
@@ -13,7 +21,15 @@ export function TraitsStep({
   onChange: DraftUpdater;
   campaign: CampaignProfile;
 }) {
-  const available = TRAIT_REGISTRY.filter(trait => campaign.availableTraitIds.includes(trait.id));
+  const [query, setQuery] = useState("");
+  const [classificationFilter, setClassificationFilter] = useState<TraitClassification | "All">("All");
+
+  const available = TRAIT_REGISTRY.filter(
+    trait =>
+      campaign.availableTraitIds.includes(trait.id) &&
+      (classificationFilter === "All" || trait.classification === classificationFilter) &&
+      trait.name.toLowerCase().includes(query.toLowerCase())
+  );
   const appliedTraits = available.filter(trait => (draft.traits[trait.id] ?? 0) > 0);
   const availableTraits = available.filter(trait => (draft.traits[trait.id] ?? 0) <= 0);
 
@@ -91,6 +107,15 @@ export function TraitsStep({
     <div className="step traits-step">
       <h2>Traits</h2>
       <p>Disadvantage refunds are capped at {campaign.disadvantageRefundCap} points in this campaign.</p>
+
+      <FilterBar
+        query={query}
+        onQueryChange={setQuery}
+        searchPlaceholder="Search Traits…"
+        categoryValue={classificationFilter}
+        categoryOptions={CLASSIFICATION_FILTER_OPTIONS}
+        onCategoryChange={value => setClassificationFilter(value as TraitClassification | "All")}
+      />
 
       <DualPaneSelector
         applied={appliedTraits}

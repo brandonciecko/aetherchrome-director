@@ -111,4 +111,31 @@ describe("evaluateDraftActor", () => {
     const result = evaluateDraftActor(draft, CROWNSHARD_REALMS_CAMPAIGN);
     expect(result.legal).toBe(false);
   });
+
+  it("exempts Institutional Support ownership states from the Possession Allowance", () => {
+    const draft = blankActor();
+    draft.traits["TRT-ADV-INSTITUTIONAL-SUPPORT"] = 1; // ceiling 100 VU
+    draft.equipment.push({ itemId: "ITM-WPN-DAGGER-001", quantity: 1, ownership: "issued" }); // 25 VU, institutional
+    draft.equipment.push({ itemId: "ITM-WPN-KNIFE-001", quantity: 1 }); // 5 VU, personal (default "owned")
+    const result = evaluateDraftActor(draft, CROWNSHARD_REALMS_CAMPAIGN);
+    expect(result.equipmentLedger.vuSpent).toBe(5);
+    expect(result.institutionalLedger).toMatchObject({ rank: 1, ceilingVU: 100, spentVU: 25, remainingVU: 75 });
+  });
+
+  it("flags Institutional Support requisition spending that exceeds the rank ceiling", () => {
+    const draft = blankActor();
+    draft.traits["TRT-ADV-INSTITUTIONAL-SUPPORT"] = 1; // ceiling 100 VU
+    draft.equipment.push({ itemId: "ITM-WPN-LONGSWORD-001", quantity: 1, ownership: "institutional" }); // 120 VU > 100 ceiling
+    const result = evaluateDraftActor(draft, CROWNSHARD_REALMS_CAMPAIGN);
+    expect(result.issues.some(issue => issue.includes("Institutional Support requisition spending"))).toBe(true);
+  });
+
+  it("flags Institutional Support ownership on an Actor without the Trait", () => {
+    const draft = blankActor();
+    draft.equipment.push({ itemId: "ITM-WPN-DAGGER-001", quantity: 1, ownership: "loaned" });
+    const result = evaluateDraftActor(draft, CROWNSHARD_REALMS_CAMPAIGN);
+    expect(result.issues.some(issue => issue.includes("no Institutional Support"))).toBe(true);
+    // Still exempt from personal VU even though it's flagged as invalid.
+    expect(result.equipmentLedger.vuSpent).toBe(0);
+  });
 });

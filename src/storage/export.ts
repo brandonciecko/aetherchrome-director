@@ -2,7 +2,9 @@ import { getCampaign } from "../rules/campaigns";
 import { evaluateDraftActor } from "../rules/creation";
 import type { DraftActor } from "../rules/types";
 
-export const ACTOR_EXPORT_SCHEMA_VERSION = 1;
+// v2: EquipmentSelection gained optional carryState/ownership fields (Loadout
+// step) — old v1 exports are rejected below rather than silently reinterpreted.
+export const ACTOR_EXPORT_SCHEMA_VERSION = 2;
 
 export interface ActorExportFile {
   schemaVersion: number;

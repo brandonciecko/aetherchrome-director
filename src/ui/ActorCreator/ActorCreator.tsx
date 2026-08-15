@@ -10,14 +10,16 @@ import { AttributesStep } from "./AttributesStep";
 import { SkillsStep } from "./SkillsStep";
 import { TraitsStep } from "./TraitsStep";
 import { EquipmentStep } from "./EquipmentStep";
+import { LoadoutStep } from "./LoadoutStep";
 import { ReviewStep } from "./ReviewStep";
 import "./ActorCreator.css";
 
-const STEPS = ["Concept", "Attributes", "Skills", "Traits", "Equipment", "Review"] as const;
+const STEPS = ["Concept", "Attributes", "Skills", "Traits", "Equipment", "Loadout", "Review"] as const;
 
 export function ActorCreator({ actor, onDone }: { actor: DraftActor; onDone: () => void }) {
   const [draft, setDraft] = useState<DraftActor>(actor);
   const [stepIndex, setStepIndex] = useState(0);
+  const [justSaved, setJustSaved] = useState(false);
   const step = STEPS[stepIndex];
 
   // The campaign an Actor was created under travels with it (draft.campaignId),
@@ -39,12 +41,26 @@ export function ActorCreator({ actor, onDone }: { actor: DraftActor; onDone: () 
     onDone();
   }
 
+  // Saves progress without leaving the wizard, regardless of legality — the
+  // Review step's handleSave (above) is the "finished, go home" action;
+  // this is for saving partial work-in-progress from any step.
+  async function handleSaveDraft() {
+    await indexedDbActorStore.save(draft);
+    setJustSaved(true);
+    setTimeout(() => setJustSaved(false), 2000);
+  }
+
   return (
     <div className="actor-creator">
       <aside className="ledger-panel">
-        <button className="back-button" onClick={onDone}>
-          &larr; Back to Actors
-        </button>
+        <div className="ledger-panel-header">
+          <button className="back-button" onClick={onDone}>
+            &larr; Back to Actors
+          </button>
+          <button className="save-draft-button" onClick={handleSaveDraft}>
+            {justSaved ? "Saved" : "Save Draft"}
+          </button>
+        </div>
         <PointLedger campaign={campaign} result={result} />
         <VersionFooter />
       </aside>
@@ -65,6 +81,9 @@ export function ActorCreator({ actor, onDone }: { actor: DraftActor; onDone: () 
           {step === "Traits" && <TraitsStep draft={draft} onChange={updateDraft} campaign={campaign} />}
           {step === "Equipment" && (
             <EquipmentStep draft={draft} onChange={updateDraft} campaign={campaign} result={result} />
+          )}
+          {step === "Loadout" && (
+            <LoadoutStep draft={draft} onChange={updateDraft} campaign={campaign} result={result} />
           )}
           {step === "Review" && <ReviewStep draft={draft} result={result} campaign={campaign} onSave={handleSave} />}
         </div>

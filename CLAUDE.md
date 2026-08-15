@@ -142,11 +142,18 @@ versioning scheme this tarball's version corresponds to.
   loudly rather than accepting a stale/invalid Actor silently — preserve that
   behavior on any format change, and bump the schema version rather than
   reinterpreting an old one in place.
-- `src/ui/ActorCreator/` — the six-step wizard (Concept → Attributes → Skills
-  → Traits → Equipment → Review), driven by a single `DraftActor` held in
-  `ActorCreator.tsx` and passed down with an `onChange` updater; each step is
-  a controlled, mostly presentational component that reads from
-  `evaluateDraftActor`'s result rather than re-deriving legality itself.
+- `src/ui/ActorCreator/` — the seven-step wizard (Concept → Attributes →
+  Skills → Traits → Equipment → Loadout → Review), driven by a single
+  `DraftActor` held in `ActorCreator.tsx` and passed down with an `onChange`
+  updater; each step is a controlled, mostly presentational component that
+  reads from `evaluateDraftActor`'s result rather than re-deriving legality
+  itself. The Loadout step (added 2026-08-15) is where an owned Item's Carry
+  State (Ready/Worn/Held/Stowed/Not Carried, see `rules/encumbrance.ts`) and
+  Ownership State (`rules/types.ts`'s curated `OwnershipState`) are set —
+  Equipment only tracks *what's owned*, not what's actively carried or by
+  what arrangement. Saving is no longer gated on legality: a persistent
+  "Save Draft" button in the `ledger-panel` header saves from any step
+  regardless of `result.legal`, so an Actor can be built in phases.
 - `src/ui/components/PointLedger.tsx` — shared ledger display, used by the
   creator sidebar.
 - `App.tsx` — top-level `View` state machine (`home` | `creator`), IndexedDB
@@ -171,6 +178,12 @@ versioning scheme this tarball's version corresponds to.
   breaking change for Foundry's importer (`SUPPORTED_SCHEMA_VERSION` there
   would need a matching update), so treat the two as versioned in lockstep,
   not independently.
+- **`ACTOR_EXPORT_SCHEMA_VERSION` bumped 1 → 2 on 2026-08-15** for the
+  Loadout step's new `EquipmentSelection.carryState`/`.ownership` fields.
+  Foundry's importer still only recognizes version 1 as of this writing —
+  Director will now produce exports Foundry rejects until that repo's
+  `SUPPORTED_SCHEMA_VERSION` and field mapping are updated to match. That
+  follow-up hasn't happened yet.
 
 ## Deployment
 

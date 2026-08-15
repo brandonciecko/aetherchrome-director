@@ -1,9 +1,21 @@
-import { ITEM_REGISTRY, type ItemDefinition } from "../../rules/items";
+import { useState } from "react";
+import { ITEM_REGISTRY, type ItemCategory, type ItemDefinition } from "../../rules/items";
 import type { CampaignProfile } from "../../rules/campaigns";
 import type { CreationResult } from "../../rules/creation";
 import type { DraftActor } from "../../rules/types";
 import type { DraftUpdater } from "./types";
 import { DualPaneSelector } from "../components/DualPaneSelector";
+import { FilterBar, type FilterOption } from "../components/FilterBar";
+
+const CATEGORY_FILTER_OPTIONS: FilterOption[] = [
+  { value: "All", label: "All Categories" },
+  { value: "Weapon", label: "Weapon" },
+  { value: "Armor / Protective", label: "Armor / Protective" },
+  { value: "Container", label: "Container" },
+  { value: "Ammunition", label: "Ammunition" },
+  { value: "Consumable", label: "Consumable" },
+  { value: "Survival", label: "Survival" }
+];
 
 export function EquipmentStep({
   draft,
@@ -16,7 +28,15 @@ export function EquipmentStep({
   campaign: CampaignProfile;
   result: CreationResult;
 }) {
-  const available = ITEM_REGISTRY.filter(item => campaign.availableItemIds.includes(item.id));
+  const [query, setQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<ItemCategory | "All">("All");
+
+  const available = ITEM_REGISTRY.filter(
+    item =>
+      campaign.availableItemIds.includes(item.id) &&
+      (categoryFilter === "All" || item.category === categoryFilter) &&
+      item.name.toLowerCase().includes(query.toLowerCase())
+  );
 
   function quantityOf(itemId: string): number {
     return draft.equipment.find(selection => selection.itemId === itemId)?.quantity ?? 0;
@@ -88,6 +108,15 @@ export function EquipmentStep({
         Possession Allowance {campaign.startingPossessionAllowanceVU} VU. Spent so far: {result.equipmentLedger.vuSpent} VU.
         Unused allowance converts to Funds at {campaign.unusedAllowanceConversionRate * 100}% once you leave this step.
       </p>
+
+      <FilterBar
+        query={query}
+        onQueryChange={setQuery}
+        searchPlaceholder="Search Equipment…"
+        categoryValue={categoryFilter}
+        categoryOptions={CATEGORY_FILTER_OPTIONS}
+        onCategoryChange={value => setCategoryFilter(value as ItemCategory | "All")}
+      />
 
       <DualPaneSelector
         applied={appliedItems}
