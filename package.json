@@ -1,7 +1,7 @@
 {
   "name": "aetherchrome-director",
   "private": true,
-  "version": "0.2.2",
+  "version": "0.2.3",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,7 +12,7 @@
     "deploy": "wrangler deploy"
   },
   "dependencies": {
-    "aetherchrome-core-data": "file:./vendor/aetherchrome-core-data-0.3.3.tgz",
+    "aetherchrome-core-data": "file:./vendor/aetherchrome-core-data-0.4.0.tgz",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },
