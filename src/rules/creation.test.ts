@@ -18,7 +18,7 @@ describe("evaluateDraftActor", () => {
 
   it("flags an attribute outside the campaign's starting range", () => {
     const draft = blankActor();
-    draft.attributes.strength = 17; // Crownshard Realms range is 14-16
+    draft.attributes.strength = 18; // Crownshard Realms range is 14-17
     const result = evaluateDraftActor(draft, CROWNSHARD_REALMS_CAMPAIGN);
     expect(result.issues.some(issue => issue.includes("strength"))).toBe(true);
   });
@@ -54,7 +54,7 @@ describe("evaluateDraftActor", () => {
 
   it("flags going over budget", () => {
     const draft = blankActor();
-    for (const key of ATTRIBUTE_KEYS) draft.attributes[key] = 16; // 36 points (6 per attribute, baseline 14 to campaign max 16)
+    for (const key of ATTRIBUTE_KEYS) draft.attributes[key] = 16; // 36 points (6 per attribute, baseline 14 to 16 — within the campaign's 14-17 range)
     draft.skills["SKL-FIGHT"] = 6; // +21 points = 57 total, over the 50-point budget
     const result = evaluateDraftActor(draft, CROWNSHARD_REALMS_CAMPAIGN);
     expect(result.pointLedger.pointsRemaining).toBeLessThan(0);

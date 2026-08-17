@@ -23,7 +23,8 @@ const modeledTraitIds = new Set(TRAIT_REGISTRY.map(trait => trait.id));
  * — baseline 4/range 3-6 became baseline 14/range 14-16, the system Granted
  * Baseline through the Trained benchmark tier. Starting Actors may not
  * reduce an Attribute below 14 here, so attributeMin equals attributeBaseline
- * and Step Down is a no-op for this campaign).
+ * and Step Down is a no-op for this campaign. v0.0.3-r2, 2026-08-15, owner
+ * decision: ceiling raised 16 -> 17, Trained through Professional).
  */
 export const CROWNSHARD_REALMS_CAMPAIGN: CampaignProfile = {
   id: core.id,
@@ -31,7 +32,7 @@ export const CROWNSHARD_REALMS_CAMPAIGN: CampaignProfile = {
   startingPoints: 50,
   attributeBaseline: 14,
   attributeMin: 14,
-  attributeMax: 16,
+  attributeMax: 17,
   startingSkillMax: core.starting_skill_maximum,
   disadvantageRefundCap: core.disadvantage_refund_limit,
   pressureCap: 4,
